@@ -2,11 +2,1025 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
     <title>LessonDeck</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #1f2937;
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 230px;
+            background: #111827;
+            color: white;
+            padding: 24px 16px;
+        }
+
+        .brand {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 32px;
+        }
+
+        .nav-button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #d1d5db;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .nav-button:hover,
+        .nav-button.active {
+            background: #1f2937;
+            color: white;
+        }
+
+        .content {
+            flex: 1;
+            padding: 32px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .hero {
+            background: white;
+            padding: 24px;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+
+        .card h3 {
+            margin-top: 0;
+        }
+
+        .panel {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+
+        form {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+        }
+
+        input,
+        select {
+            padding: 11px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        button.primary {
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 11px 16px;
+            cursor: pointer;
+        }
+
+        .course-grid,
+        .schedule-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .course-card,
+        .schedule-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .muted {
+            color: #64748b;
+        }
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .action-button {
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        .edit-button {
+            background: #e0e7ff;
+            color: #1e3a8a;
+        }
+
+        .delete-button {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>LessonDeck</h1>
-    <p>Your classroom command center is running.</p>
+
+<div class="app">
+
+    <aside class="sidebar">
+        <div class="brand">
+            LessonDeck
+        </div>
+
+        <button
+            class="nav-button active"
+            data-page="hub"
+        >
+            Teacher Hub
+        </button>
+
+        <button
+            class="nav-button"
+            data-page="classes"
+        >
+            Classes
+        </button>
+
+        <button
+            class="nav-button"
+            data-page="schedule"
+        >
+            Schedule
+        </button>
+    </aside>
+
+    <main class="content">
+
+        <section
+            id="hub"
+            class="page active"
+        >
+            <div class="hero">
+                <h1>Teacher Hub</h1>
+                <p class="muted">
+                    Your classroom command center
+                </p>
+            </div>
+
+            <div class="grid">
+
+                <div class="card">
+                    <h3>Current Class</h3>
+                    <p id="current-class">
+                        No active class detected.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Today's Schedule</h3>
+                    <div id="hub-schedule">
+                        No schedule yet.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Next Up</h3>
+                    <p id="next-class">
+                        Nothing scheduled.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Your Classes</h3>
+                    <p id="class-count">
+                        0 classes
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+
+        <section
+            id="classes"
+            class="page"
+        >
+            <div class="hero">
+                <h1>Classes</h1>
+                <p class="muted">
+                    Create and manage your courses.
+                </p>
+            </div>
+
+            <div class="panel">
+                <h2>Add a Class</h2>
+
+                <form id="course-form">
+
+                    <input
+                        id="name"
+                        placeholder="Course name"
+                        required
+                    >
+
+                    <input
+                        id="subject"
+                        placeholder="Subject"
+                        required
+                    >
+
+                    <input
+                        id="grade"
+                        placeholder="Grade level"
+                        required
+                    >
+
+                    <input
+                        id="period"
+                        placeholder="Period"
+                    >
+
+                    <button
+                        class="primary"
+                        type="submit"
+                    >
+                        Add Class
+                    </button>
+
+                </form>
+            </div>
+
+            <div class="panel">
+                <h2>Your Classes</h2>
+
+                <div
+                    id="course-list"
+                    class="course-grid"
+                ></div>
+            </div>
+        </section>
+
+
+        <section
+            id="schedule"
+            class="page"
+        >
+            <div class="hero">
+                <h1>Schedule</h1>
+                <p class="muted">
+                    Build your A/B day schedule.
+                </p>
+            </div>
+
+            <div class="panel">
+                <h2>Add Schedule Entry</h2>
+
+                <form id="schedule-form">
+
+                    <select
+                        id="day-type"
+                        required
+                    >
+                        <option value="A">
+                            A Day
+                        </option>
+
+                        <option value="B">
+                            B Day
+                        </option>
+                    </select>
+
+                    <input
+                        id="period-label"
+                        placeholder="Period"
+                        required
+                    >
+
+                    <input
+                        id="start-time"
+                        type="time"
+                        required
+                    >
+
+                    <input
+                        id="end-time"
+                        type="time"
+                        required
+                    >
+
+                    <select id="schedule-course">
+                        <option value="">
+                            No class assigned
+                        </option>
+                    </select>
+
+                    <button
+                        class="primary"
+                        type="submit"
+                    >
+                        Add Schedule Entry
+                    </button>
+
+                </form>
+            </div>
+
+            <div class="panel">
+                <h2>Schedule Entries</h2>
+
+                <div
+                    id="schedule-list"
+                    class="schedule-grid"
+                ></div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+
+<script>
+
+    const navButtons =
+        document.querySelectorAll(".nav-button");
+
+    const pages =
+        document.querySelectorAll(".page");
+
+    const courseForm =
+        document.getElementById("course-form");
+
+    const scheduleForm =
+        document.getElementById("schedule-form");
+
+
+    let courses = [];
+    let scheduleEntries = [];
+
+
+    navButtons.forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                navButtons.forEach(
+                    item =>
+                        item.classList.remove("active")
+                );
+
+                pages.forEach(
+                    page =>
+                        page.classList.remove("active")
+                );
+
+                button.classList.add("active");
+
+                document
+                    .getElementById(
+                        button.dataset.page
+                    )
+                    .classList.add("active");
+            }
+        );
+    });
+
+
+    async function loadCourses() {
+
+        const response =
+            await fetch("/api/courses");
+
+        courses =
+            await response.json();
+
+        renderCourses();
+        populateCourseDropdown();
+        updateHub();
+    }
+
+
+    async function loadSchedule() {
+
+        const response =
+            await fetch("/api/schedule");
+
+        scheduleEntries =
+            await response.json();
+
+        renderSchedule();
+        updateHub();
+    }
+
+
+    function renderCourses() { 
+
+    const container =
+        document.getElementById("course-list");
+
+    container.innerHTML = "";
+
+    if (courses.length === 0) {
+        container.innerHTML =
+            '<p class="muted">No classes yet.</p>';
+        return;
+    }
+
+    courses.forEach(course => {
+
+        const card =
+            document.createElement("div");
+
+        card.className = "course-card";
+
+        card.innerHTML = `
+            <h3>${course.name}</h3>
+            <p>${course.subject}</p>
+            <p>Grade ${course.grade_level}</p>
+            <p>Period ${course.period || "—"}</p>
+
+            <div class="card-actions">
+                <button
+                    class="action-button edit-button"
+                    onclick="editCourse(${course.id})"
+                >
+                    Edit
+                </button>
+
+                <button
+                    class="action-button delete-button"
+                    onclick="deleteCourse(${course.id})"
+                >
+                    Delete
+                </button>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+
+    function populateCourseDropdown() {
+
+        const dropdown =
+            document.getElementById(
+                "schedule-course"
+            );
+
+        dropdown.innerHTML =
+            '<option value="">No class assigned</option>';
+
+        courses.forEach(course => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = course.id;
+            option.textContent = course.name;
+
+            dropdown.appendChild(option);
+        });
+    }
+
+
+    function renderSchedule() {
+
+        const container =
+            document.getElementById(
+                "schedule-list"
+            );
+
+        container.innerHTML = "";
+
+        if (scheduleEntries.length === 0) {
+            container.innerHTML =
+                '<p class="muted">No schedule entries yet.</p>';
+            return;
+        }
+
+        scheduleEntries.forEach(entry => {
+
+            const course =
+                courses.find(
+                    item =>
+                        item.id === entry.course_id
+                );
+
+            const card =
+                document.createElement("div");
+
+            card.className = "schedule-card";
+
+            card.innerHTML = `
+                <h3>
+                    ${entry.day_type} Day —
+                    ${entry.period_label}
+                </h3>
+
+                <p>
+                    ${entry.start_time}
+                    -
+                    ${entry.end_time}
+                </p>
+
+                <p>
+                    ${course
+                        ? course.name
+                        : "No class assigned"}
+                </p>
+
+                <div class="card-actions">
+                    <button
+                        class="action-button edit-button"
+                        onclick="editScheduleEntry(${entry.id})"
+                    >
+                        Edit
+                    </button>
+
+                    <button
+                        class="action-button delete-button"
+                        onclick="deleteScheduleEntry(${entry.id})"
+                    >
+                        Delete
+                    </button>
+                </div>
+            `;
+
+            container.appendChild(card);
+        });
+}
+
+
+    function updateHub() {
+
+        document.getElementById(
+            "class-count"
+        ).textContent =
+            `${courses.length} classes`;
+
+        const hubSchedule =
+            document.getElementById(
+                "hub-schedule"
+            );
+
+        if (scheduleEntries.length === 0) {
+
+            hubSchedule.textContent =
+                "No schedule yet.";
+
+            return;
+        }
+
+        hubSchedule.innerHTML =
+            scheduleEntries
+                .slice(0, 4)
+                .map(entry => {
+
+                    const course =
+                        courses.find(
+                            item =>
+                                item.id === entry.course_id
+                        );
+
+                    return `
+                        <p>
+                            <strong>
+                                ${entry.day_type}
+                                ${entry.period_label}
+                            </strong>
+                            —
+                            ${course
+                                ? course.name
+                                : "Unassigned"}
+                        </p>
+                    `;
+                })
+                .join("");
+    }
+
+
+    courseForm.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+            const payload = {
+                name:
+                    document.getElementById(
+                        "name"
+                    ).value,
+
+                subject:
+                    document.getElementById(
+                        "subject"
+                    ).value,
+
+                grade_level:
+                    document.getElementById(
+                        "grade"
+                    ).value,
+
+                period:
+                    document.getElementById(
+                        "period"
+                    ).value || null
+            };
+
+            const response =
+                await fetch(
+                    "/api/courses",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(payload)
+                    }
+                );
+
+            if (!response.ok) {
+                alert("Could not create class.");
+                return;
+            }
+
+            courseForm.reset();
+
+            await loadCourses();
+        }
+    );
+
+
+    scheduleForm.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+            const courseValue =
+                document.getElementById(
+                    "schedule-course"
+                ).value;
+
+            const payload = {
+                day_type:
+                    document.getElementById(
+                        "day-type"
+                    ).value,
+
+                period_label:
+                    document.getElementById(
+                        "period-label"
+                    ).value,
+
+                start_time:
+                    document.getElementById(
+                        "start-time"
+                    ).value,
+
+                end_time:
+                    document.getElementById(
+                        "end-time"
+                    ).value,
+
+                course_id:
+                    courseValue
+                        ? Number(courseValue)
+                        : null
+            };
+
+            if (payload.end_time <= payload.start_time) {
+                alert("End time must be after start time.");
+                    return;
+}
+
+            const response =
+                await fetch(
+                    "/api/schedule",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(payload)
+                    }
+                );
+
+            if (!response.ok) {
+                alert("Could not create schedule entry.");
+                return;
+            }
+
+            scheduleForm.reset();
+
+            await loadSchedule();
+        }
+    );
+
+
+    async function initializeApp() {
+        await loadCourses();
+        await loadSchedule();
+    }
+
+    async function editCourse(courseId) {
+
+    const course =
+        courses.find(
+            item => item.id === courseId
+        );
+
+    if (!course) return;
+
+    const name =
+        prompt(
+            "Course name:",
+            course.name
+        );
+
+    if (name === null) return;
+
+    const subject =
+        prompt(
+            "Subject:",
+            course.subject
+        );
+
+    if (subject === null) return;
+
+    const gradeLevel =
+        prompt(
+            "Grade level:",
+            course.grade_level
+        );
+
+    if (gradeLevel === null) return;
+
+    const period =
+        prompt(
+            "Period:",
+            course.period || ""
+        );
+
+    if (period === null) return;
+
+    const response =
+        await fetch(
+            `/api/courses/${courseId}`,
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+                    name,
+                    subject,
+                    grade_level: gradeLevel,
+                    period: period || null
+                })
+            }
+        );
+
+    if (!response.ok) {
+        alert("Could not update class.");
+        return;
+    }
+
+    await loadCourses();
+    await loadSchedule();
+}
+
+
+    async function deleteCourse(courseId) {
+
+    const course =
+        courses.find(
+            item => item.id === courseId
+        );
+
+    if (!course) return;
+
+    const confirmed =
+        confirm(
+            `Delete "${course.name}"?`
+        );
+
+    if (!confirmed) return;
+
+    const response =
+        await fetch(
+            `/api/courses/${courseId}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+    if (!response.ok) {
+
+        const error =
+            await response.json();
+
+        alert(
+            error.detail ||
+            "Could not delete class."
+        );
+
+        return;
+    }
+
+    await loadCourses();
+}
+
+
+    async function editScheduleEntry(entryId) {
+
+    const entry =
+        scheduleEntries.find(
+            item => item.id === entryId
+        );
+
+    if (!entry) return;
+
+    const dayType =
+        prompt(
+            "Day type:",
+            entry.day_type
+        );
+
+    if (dayType === null) return;
+
+    const periodLabel =
+        prompt(
+            "Period:",
+            entry.period_label
+        );
+
+    if (periodLabel === null) return;
+
+    const startTime =
+        prompt(
+            "Start time (HH:MM):",
+            entry.start_time
+        );
+
+    if (startTime === null) return;
+
+    const endTime =
+        prompt(
+            "End time (HH:MM):",
+            entry.end_time
+        );
+
+    if (endTime === null) return;
+
+    const courseInput =
+        prompt(
+            "Course ID (blank for none):",
+            entry.course_id || ""
+        );
+
+    if (courseInput === null) return;
+
+    const response =
+        await fetch(
+            `/api/schedule/${entryId}`,
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+                    day_type:
+                        dayType.toUpperCase(),
+
+                    period_label:
+                        periodLabel,
+
+                    start_time:
+                        startTime,
+
+                    end_time:
+                        endTime,
+
+                    course_id:
+                        courseInput
+                            ? Number(courseInput)
+                            : null
+                })
+            }
+        );
+
+    if (!response.ok) {
+
+        const error =
+            await response.json();
+
+        alert(
+            error.detail ||
+            "Could not update schedule entry."
+        );
+
+        return;
+    }
+
+    await loadSchedule();
+}
+
+
+    async function deleteScheduleEntry(entryId) {
+
+    const confirmed =
+        confirm(
+            "Delete this schedule entry?"
+        );
+
+    if (!confirmed) return;
+
+    const response =
+        await fetch(
+            `/api/schedule/${entryId}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+    if (!response.ok) {
+        alert(
+            "Could not delete schedule entry."
+        );
+        return;
+    }
+
+    await loadSchedule();
+}
+
+    initializeApp();
+
+</script>
+
 </body>
 </html>
